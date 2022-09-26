@@ -1,8 +1,8 @@
 import './style.css';
 
 import * as React from 'react';
-import { Avatar, Card, CardActions, CardContent, CardMedia, IconButton, TextField, Typography } from '@mui/material';
-import { Chip, ChipDelete } from '@mui/joy';
+import { Avatar, Box, Card, CardActions, CardContent, CardMedia, IconButton, TextField, Typography } from '@mui/material';
+
 import { AddReactionOutlined, AttachFileOutlined, Send } from '@mui/icons-material';
 export default function chatCard() {
   return (
@@ -10,7 +10,7 @@ export default function chatCard() {
       width: 415,
       position: "fixed",
       bottom: 20, right: 20,
-      minHeight: "40%",
+      minHeight: "50%",
     }}>
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
@@ -19,42 +19,50 @@ export default function chatCard() {
 
       </CardContent>
       <CardMedia sx={{
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         p: 1,
         m: 1,
       }}>
 
-        <Chip
-          variant="outlined"
-          color="neutral"
-          size="lg"
-          startDecorator={<Avatar size="sm" />}
-          endDecorator={<ChipDelete />}
-          sx={{
+        <Box sx={{ display: "flex" }}>
+          <Avatar sx={{ background: "#cdefee" }}></Avatar>
+          <Typography sx={{
+            background: "#cdefee",
+            borderRadius: "0 10px 10px 10px",
             m: 1,
-            p: 1,
-            "--Chip-minHeight": "33px",
-            "--Chip-radius": "25px",
-            "--Chip-gap": "30px"
-          }}
-        >Hallo!</Chip>
-        <Chip
-          variant="outlined"
-          color="neutral"
-          size="lg"
-
-          endDecorator={<Avatar size="sm" />}
-          sx={{
+            marginTop: 2, p: 1,
+            minHeight: "30px",
+            minWidth: "50px",
+            paddingRight: 3
+          }}>
+            Hallo zusammen!</Typography>
+        </Box>
+        <Box sx={{ display: "flex", justifyContent: "end" }}>
+          <Typography sx={{
+            background: "rgba(255,237,186,255)",
+            borderRadius: "10px 0 10px 10px",
+            minWidth: "50px", m: 1,
+            marginTop: 2, p: 1,
+            paddingLeft: 4
+          }}>
+            Hey!</Typography>
+          <Avatar sx={{ background: "rgba(255,237,186,255)" }}></Avatar>
+        </Box>
+        <Box sx={{ display: "flex" }}>
+          <Avatar sx={{ background: "#97a99a" }}></Avatar>
+          <Typography sx={{
+            background: "#97a99a",
+            borderRadius: "0 10px 10px 10px",
             m: 1,
-            p: 1,
-            "--Chip-minHeight": "33px",
-            "--Chip-maxWidth": "100px",
-            "--Chip-radius": "25px",
-            "--Chip-gap": "30px"
-          }}
-        >Hey!</Chip>
-
+            marginTop: 2, p: 1,
+            maxWidth: "60%",
+            minHeight: "30px",
+            minWidth: "50px",
+            paddingRight: 3
+          }}>
+            Download the React DevTools for a better development experience</Typography>
+        </Box>
       </CardMedia>
 
       <CardActions sx={{
