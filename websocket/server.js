@@ -24,9 +24,9 @@ let io = socketIo(httpServer, {
 });
 
 io.on("connect", (socket) => {
-  console.log(socket.id)
+
   socket.on("newMsg", (data) => {
-    console.log(data)
+    io.emit("msg", data)
   })
 })
 

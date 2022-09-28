@@ -4,55 +4,23 @@ import { MyMessage } from './components/styles/myMessage.styled';
 import { Text } from './components/styles/textOfMessage.styled';
 import { MyText } from './components/styles/myText.styled';
 import * as React from 'react';
-import { Avatar, Button, Card, CardActions, CardContent, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slide, TextField, Typography } from '@mui/material';
+import { Avatar, Card, CardActions, CardContent, CardMedia, IconButton, TextField, Typography } from '@mui/material';
 import io from 'socket.io-client';
 import { AddReactionOutlined, AttachFileOutlined, SettingsOutlined, Send } from '@mui/icons-material';
-import { v4 as uuidv4 } from 'uuid';
 
-const localStorage = require('localStorage');
-
-let uniqueUserId = localStorage.getItem("uniqueUserId");
-if (!uniqueUserId) {
-  uniqueUserId = uuidv4();
-  localStorage.setItem("uniqueUserId", uniqueUserId);
-}
-
-let allMessages = localStorage.getItem("allMessages");
-if (!allMessages) {
-  allMessages = "[]";
-  localStorage.setItem("allMessages", JSON.stringify([]));
-}
-allMessages = JSON.parse(allMessages);
-
-let userName = localStorage.getItem("userName");
-if (!userName) {
-  userName = "";
-  localStorage.setItem("userName", userName);
-}
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-
+const myId = "12344rergwegf34f"
+const myName = "Mike"
 
 export default function chatCard() {
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  /*
+  const messages = [
+    { name: "AJ", text: "Hallo!", user: "12344rergwegf34f" },
+    { name: "XC", text: "Hey!", user: "ergse3gerger" },
+  ];
+  */
 
   const [socket, setSocket] = React.useState(null);
-  const [messages, setMessages] = React.useState(allMessages);
-
-
-
+  const [messages, setMessages] = React.useState([]);
 
   React.useEffect(() => {
     const newSocket = io(`http://127.0.0.1:8080`);
@@ -60,26 +28,20 @@ export default function chatCard() {
     return () => newSocket.close();
   }, [setSocket]);
 
-  const saveUserName = () => {
-    const textareaEl = document.getElementById('standard-basic');
-    localStorage.setItem("userName", textareaEl.value);
-    userName = textareaEl.value;
-    textareaEl.value = '';
-    handleClose();
-  }
-
   const sendMessage = () => {
-
+    socket.emit("newMsg", { a: 1, b: 2 })
 
     const textareaEl = document.getElementById('outlined-textarea');
-    const newMessage = {
-      name: userName,
-      text: textareaEl.value,
-      userId: uniqueUserId,
-    }
-    const allMsgsPlusNewMsg = [...messages, newMessage]
-    localStorage.setItem("allMessages", JSON.stringify(allMsgsPlusNewMsg))
-    setMessages(allMsgsPlusNewMsg)
+
+
+    setMessages([
+      ...messages,
+      {
+        name: myName,
+        text: textareaEl.value,
+      }
+    ])
+
     textareaEl.value = ''
   }
 
@@ -91,29 +53,31 @@ export default function chatCard() {
       minHeight: "40%",
     }}>
       <CardContent>
-
-
-        <Dialog
-          open={open}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={handleClose}
-          aria-describedby="alert-dialog-slide-description"
-        >
-          <DialogTitle>{"Name engeben:"}</DialogTitle>
-          <DialogContent id="alert-dialog-slide-description">
-            <TextField id="standard-basic" label="Name" variant="standard" />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={saveUserName}>Speichern</Button>
-            <Button onClick={handleClose}>Zurück</Button>
-          </DialogActions>
-        </Dialog>
-
-
+        {/* <Paper elevation={3} sx={{
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+          gap: 3,
+          top: 10,
+          right: 50,
+          width: 230,
+          height: 190,
+          p: 2,
+          zIndex: 999
+        }} >
+          <TextField id="standard-basic" label="Nickname" variant="standard" />
+          <IconButton aria-label="addReactionOutlined" color="secondary">
+            <AddAPhotoOutlined />
+          </IconButton>
+          <Stack spacing={2} direction="row">
+            <Button variant="contained">SPEICHERN</Button>
+            <Button variant="outlined">Zurück</Button>
+          </Stack>
+        </Paper> */}
         <Typography gutterBottom variant="h5" component="div" sx={{ display: "flex", justifyContent: "space-between" }}>
           Chat
-          <IconButton onClick={handleClickOpen} aria-label="send" color="success" sx={{ margin: 1 }}>
+          <IconButton aria-label="send" color="success" sx={{ margin: 1 }}>
             <SettingsOutlined />
           </IconButton>
         </Typography>
@@ -128,7 +92,7 @@ export default function chatCard() {
 
 
         {messages.map((message, index) => {
-          if (message.userId === uniqueUserId) { // This is a message from me, use MyMessage
+          if (message.user === myId) { // This is a message from me, use MyMessage
             return <MyMessage key={index}>
               <MyText>{message.text}</MyText>
               <Avatar sx={{ background: "rgba(255,237,186,255)" }}>{message.name}</Avatar>
