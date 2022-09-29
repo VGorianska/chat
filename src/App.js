@@ -4,10 +4,23 @@ import { MyMessage } from './components/styles/myMessage.styled';
 import { Text } from './components/styles/textOfMessage.styled';
 import { MyText } from './components/styles/myText.styled';
 import * as React from 'react';
-import { Avatar, Button, Card, CardActions, CardContent, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slide, TextField, Typography } from '@mui/material';
+import { Avatar, Button, Card, CardActions, CardContent, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Slide, TextField, Typography } from '@mui/material';
 import io from 'socket.io-client';
 import { AddReactionOutlined, AttachFileOutlined, SettingsOutlined, Send } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
+import EmojiPicker from 'emoji-picker-react';
+import Draggable from 'react-draggable';
+
+function PaperComponent(props) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
 
 const localStorage = require('localStorage');
 
@@ -25,10 +38,10 @@ if (!allMessages) {
 allMessages = JSON.parse(allMessages);
 
 let userName = localStorage.getItem("userName");
-if (!userName) {
-  userName = "";
-  localStorage.setItem("userName", userName);
-}
+// if (!userName) {
+//   userName = '';
+//   // localStorage.setItem("userName", userName);
+// }
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -52,6 +65,17 @@ export default function chatCard() {
   const [messages, setMessages] = React.useState(allMessages);
 
 
+  const [openDrag, setOpenDrag] = React.useState(false);
+
+  const handleClickOpenDrag = () => {
+    setOpenDrag(true);
+  };
+
+  const handleCloseDrag = () => {
+    setOpenDrag(false);
+  };
+
+
 
 
   React.useEffect(() => {
@@ -70,8 +94,10 @@ export default function chatCard() {
 
   const sendMessage = () => {
 
-
     const textareaEl = document.getElementById('outlined-textarea');
+    if (textareaEl.value.length < 2) {
+      return
+    }
     const newMessage = {
       name: userName,
       text: textareaEl.value,
@@ -82,8 +108,14 @@ export default function chatCard() {
     setMessages(allMsgsPlusNewMsg)
     textareaEl.value = ''
   }
+  const handleEmojiClick = (el) => {
+    const textareaEl = document.getElementById('outlined-textarea');
+    textareaEl.value += el.emoji;
+    handleCloseDrag();
+  }
 
   return (
+
     <Card sx={{
       width: 415,
       position: "fixed",
@@ -91,7 +123,6 @@ export default function chatCard() {
       minHeight: "40%",
     }}>
       <CardContent>
-
 
         <Dialog
           open={open}
@@ -102,7 +133,7 @@ export default function chatCard() {
         >
           <DialogTitle>{"Name engeben:"}</DialogTitle>
           <DialogContent id="alert-dialog-slide-description">
-            <TextField id="standard-basic" label="Name" variant="standard" />
+            <TextField id="standard-basic" variant="standard" />
           </DialogContent>
           <DialogActions>
             <Button onClick={saveUserName}>Speichern</Button>
@@ -124,6 +155,7 @@ export default function chatCard() {
         flexDirection: "column",
         p: 1,
         m: 1,
+        mb: 12,
       }}>
 
 
@@ -131,11 +163,11 @@ export default function chatCard() {
           if (message.userId === uniqueUserId) { // This is a message from me, use MyMessage
             return <MyMessage key={index}>
               <MyText>{message.text}</MyText>
-              <Avatar sx={{ background: "rgba(255,237,186,255)" }}>{message.name}</Avatar>
+              <Avatar sx={{ background: "#DA8B8B" }}>{message.name}</Avatar>
             </MyMessage>
-          } else { // This is a message from somebody else, use Message
+          } else { // This is a message from somebody else
             return <Message key={index}>
-              <Avatar>{message.name}</Avatar>
+              <Avatar sx={{ background: "rgba(95bdb5)" }}>{message.name}</Avatar>
               <Text>{message.text}</Text>
             </Message>
           }
@@ -170,9 +202,33 @@ export default function chatCard() {
         width: 400
       }}>
         <div sx={{ display: "block" }}>
-          <IconButton aria-label="addReactionOutlined" color="secondary">
+          <IconButton onClick={handleClickOpenDrag} aria-label="addReactionOutlined" color="secondary">
             < AddReactionOutlined />
           </IconButton>
+
+          <Dialog
+            open={openDrag}
+            onClose={handleCloseDrag}
+            PaperComponent={PaperComponent}
+            aria-labelledby="draggable-dialog-title"
+          >
+            <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+              EmojiPicker
+            </DialogTitle>
+            <DialogContent>
+              <div>
+                <EmojiPicker onEmojiClick={handleEmojiClick} />
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button autoFocus onClick={handleCloseDrag}>
+                Cancel
+              </Button>
+              <Button onClick={handleCloseDrag}>Subscribe</Button>
+            </DialogActions>
+          </Dialog>
+
+
           <IconButton aria-label="attachFileOutlined" color="primary">
             < AttachFileOutlined />
           </IconButton>
