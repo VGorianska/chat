@@ -1,6 +1,13 @@
 body {
   background: #ddd;
 }
+
+#root>* {
+  background-image: url(./img/photo-1629196214806-2fe3a64cb875.avif);
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+}
 .MuiTextField-root {
   padding: 3px;
 }

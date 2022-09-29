@@ -6,9 +6,31 @@ import { MyText } from './components/styles/myText.styled';
 import * as React from 'react';
 import { Avatar, Button, Card, CardActions, CardContent, CardMedia, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Slide, TextField, Typography } from '@mui/material';
 import io from 'socket.io-client';
-import { AddReactionOutlined, AttachFileOutlined, SettingsOutlined, Send } from '@mui/icons-material';
+import { AddReactionOutlined, SettingsOutlined, Send } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
 import EmojiPicker from 'emoji-picker-react';
+
+
+/*
+
+TO DO:                                          Done:
+
+
+
+                                                1. random individuals colors
+                                                2. fix user names 
+                                                3. delite files icon
+4. add sounds
+5. add bg
+6. bookmarklet
+                                                7. scroll
+8. style of chat
+
+
+*/
+
+
+
 
 const localStorage = require('localStorage');
 
@@ -26,17 +48,12 @@ if (!allMessages) {
 allMessages = JSON.parse(allMessages);
 
 let userName = localStorage.getItem("userName");
-// if (!userName) {
-//   userName = '';
-//   // localStorage.setItem("userName", userName);
-// }
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const newSocket = io(`http://192.168.178.34:8080`);
-newSocket.on('connect_error', (err) => alert(err.message))
 
 
 export default function chatCard() {
@@ -84,9 +101,9 @@ export default function chatCard() {
       text: textareaEl.value,
       userId: uniqueUserId,
     }
-    // createMessage(newMessage);
     // send message to server:
     newSocket.emit("message", newMessage);
+
     textareaEl.value = ''
   }
 
@@ -94,7 +111,7 @@ export default function chatCard() {
     let localArray = [...messages];
     localArray.push(msg);
     setMessages(localArray);
-    localStorage.setItem("allMessages", JSON.stringify(messages))
+    localStorage.setItem("allMessages", JSON.stringify(localArray))
   }
 
   const handleEmojiClick = (el) => {
@@ -103,6 +120,37 @@ export default function chatCard() {
     handleCloseDrag();
   }
 
+
+
+  function stringToColor(string) {
+    let hash = 0;
+    let i;
+
+    /* eslint-disable no-bitwise */
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = '#';
+
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    /* eslint-enable no-bitwise */
+    return color;
+  }
+
+  function stringAvatar(message) {
+    return {
+      sx: {
+        bgcolor: stringToColor(message.userId),
+      },
+      children: message.name ? `${message.name.split(' ')[0][0]}${message.name.split(' ')[0][0]}` : null,
+    };
+  }
+
+
   return (
 
     <Card sx={{
@@ -110,6 +158,7 @@ export default function chatCard() {
       position: "fixed",
       bottom: 20, right: 5,
       minHeight: "40%",
+      maxHeight: "100%",
       backgroundImage: "url='./img/photo-1655474396177-e727349f44dc.avif'"
     }}>
       <CardContent>
@@ -145,20 +194,22 @@ export default function chatCard() {
         flexDirection: "column",
         p: 1,
         m: 1,
-        mb: 12,
+        mb: "120px",
+        overflow: "scroll",
+        maxHeight: "64vh",
       }}>
 
 
         {messages.map((message, index) => {
           if (message.userId === uniqueUserId) { // This is a message from me, use MyMessage
             return <MyMessage key={index}>
-              <MyText>{message.text}</MyText>
-              <Avatar sx={{ background: "#DA8B8B" }}>{message.name}</Avatar>
+              <MyText sx={{ background: stringToColor(message.userId) }} >{message.text}</MyText>
+              <Avatar {...stringAvatar(message)}></Avatar>
             </MyMessage>
           } else { // This is a message from somebody else
             return <Message key={index}>
-              <Avatar sx={{ background: "rgba(95bdb5)" }}>{message.name}</Avatar>
-              <Text>{message.text}</Text>
+              <Avatar {...stringAvatar(message)}></Avatar>
+              <Text sx={{ background: stringToColor(message.userId) }}>{message.text}</Text>
             </Message>
           }
         })}
@@ -218,10 +269,6 @@ export default function chatCard() {
             </DialogActions>
           </Dialog>
 
-
-          <IconButton aria-label="attachFileOutlined" color="primary">
-            < AttachFileOutlined />
-          </IconButton>
         </div>
         <TextField
           id="outlined-textarea"
