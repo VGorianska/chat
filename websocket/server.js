@@ -1,8 +1,6 @@
 'use strict';
 
-const {
-  log
-} = require('console');
+const { log } = require('console');
 const cors = require('cors');
 // Express
 const express = require('express');
@@ -18,18 +16,28 @@ let httpServer = http.Server(expressServer);
 const socketIo = require('socket.io');
 let io = socketIo(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://192.168.178.34:3000",
     methods: ["GET", "POST"]
   }
 });
 
-io.on("connect", (socket) => {
 
-  socket.on("newMsg", (data) => {
-    io.emit("msg", data)
+io.engine.on("connection_error", (err) => {
+  console.log(err.req);      // the request object
+  console.log(err.code);     // the error code, for example 1
+  console.log(err.message);  // the error message, for example "Session ID unknown"
+  console.log(err.context);  // some additional error context
+});
+
+io.on("connect", (socket) => {
+  console.log("connection!!!!!");
+
+  socket.on("message", (data) => {
+    console.log("MESSAGE", data);
+    io.emit("message", data)
   })
 })
 
-httpServer.listen(8080, () => {
+httpServer.listen(8080, '192.168.178.34', () => {
   console.log("geht!")
 });

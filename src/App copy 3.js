@@ -21,6 +21,7 @@ if (!uniqueUserId) {
 let allMessages = localStorage.getItem("allMessages");
 if (!allMessages) {
   allMessages = "[]";
+  console.log('Setting messages', [])
   localStorage.setItem("allMessages", JSON.stringify([]));
 }
 allMessages = JSON.parse(allMessages);
@@ -35,8 +36,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const newSocket = io(`http://192.168.178.34:8080`);
-newSocket.on('connect_error', (err) => alert(err.message))
 
 
 export default function chatCard() {
@@ -51,7 +50,10 @@ export default function chatCard() {
     setOpen(false);
   };
 
+  const [socket, setSocket] = React.useState();
   const [messages, setMessages] = React.useState(allMessages);
+
+
   const [openDrag, setOpenDrag] = React.useState(false);
 
   const handleClickOpenDrag = () => {
@@ -62,8 +64,20 @@ export default function chatCard() {
     setOpenDrag(false);
   };
 
-  newSocket.off('message');
-  newSocket.on("message", (data) => createMessage(data));
+
+
+  // once to create connection to server
+  React.useEffect(() => {
+    const newSocket = io(`http://192.168.178.34:8080`);
+    setSocket(newSocket);
+    newSocket.on("message", (data) => {
+      createMessage(data)
+
+    });
+    return () => newSocket.close();
+  }, [setSocket]);
+
+
 
   const saveUserName = () => {
     const textareaEl = document.getElementById('standard-basic');
@@ -72,6 +86,8 @@ export default function chatCard() {
     textareaEl.value = '';
     handleClose();
   }
+
+
 
   const sendMessage = () => {
 
@@ -84,17 +100,17 @@ export default function chatCard() {
       text: textareaEl.value,
       userId: uniqueUserId,
     }
-    // createMessage(newMessage);
+    createMessage(newMessage);
+
     // send message to server:
-    newSocket.emit("message", newMessage);
+    socket.emit("message", newMessage);
     textareaEl.value = ''
   }
 
   const createMessage = (msg) => {
-    let localArray = [...messages];
-    localArray.push(msg);
-    setMessages(localArray);
-    localStorage.setItem("allMessages", JSON.stringify(messages))
+    const allMsgsPlusNewMsg = [...messages, msg]
+    localStorage.setItem("allMessages", JSON.stringify(allMsgsPlusNewMsg))
+    setMessages(JSON.parse(JSON.stringify(allMsgsPlusNewMsg))) // TODO: Otherwise not updating
   }
 
   const handleEmojiClick = (el) => {
@@ -108,9 +124,8 @@ export default function chatCard() {
     <Card sx={{
       width: 415,
       position: "fixed",
-      bottom: 20, right: 5,
+      bottom: 20, right: 20,
       minHeight: "40%",
-      backgroundImage: "url='./img/photo-1655474396177-e727349f44dc.avif'"
     }}>
       <CardContent>
 
@@ -150,6 +165,7 @@ export default function chatCard() {
 
 
         {messages.map((message, index) => {
+
           if (message.userId === uniqueUserId) { // This is a message from me, use MyMessage
             return <MyMessage key={index}>
               <MyText>{message.text}</MyText>
@@ -244,7 +260,7 @@ export default function chatCard() {
             fontWeight: 500
           }} />
 
-        {newSocket ? (
+        {socket ? (
           <IconButton onClick={sendMessage} aria-label="send" color="success" id="btnSend" sx={{ margin: 1 }}>
             <Send />
           </IconButton>
