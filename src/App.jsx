@@ -11,27 +11,6 @@ import { v4 as uuidv4 } from 'uuid';
 import EmojiPicker from 'emoji-picker-react';
 
 
-/*
-
-TO DO:                                          Done:
-
-
-
-                                                1. random individuals colors
-                                                2. fix user names 
-                                                3. delite files icon
-4. add sounds
-5. add bg
-6. bookmarklet
-                                                7. scroll
-8. style of chat
-
-
-*/
-
-
-
-
 const localStorage = require('localStorage');
 
 let uniqueUserId = localStorage.getItem("uniqueUserId");
@@ -107,6 +86,7 @@ export default function chatCard() {
     textareaEl.value = ''
   }
 
+
   const createMessage = (msg) => {
     let localArray = [...messages];
     localArray.push(msg);
@@ -146,7 +126,7 @@ export default function chatCard() {
       sx: {
         bgcolor: stringToColor(message.userId),
       },
-      children: message.name ? `${message.name.split(' ')[0][0]}${message.name.split(' ')[0][0]}` : null,
+      children: message.name ? `${message.name.split(" ").map((item) => item[0])}` : null,
     };
   }
 
@@ -192,10 +172,10 @@ export default function chatCard() {
       <CardMedia sx={{
         display: "flex",
         flexDirection: "column",
-        p: 1,
         m: 1,
         mb: "120px",
-        overflow: "scroll",
+        overflowY: "scroll",
+        overflowX: "hidden",
         maxHeight: "64vh",
       }}>
 
@@ -214,26 +194,6 @@ export default function chatCard() {
           }
         })}
 
-        {/* <Message>
-          <Avatar sx={{ background: "#97a99a" }}></Avatar>
-          <Text>Download the React DevTools for a better development experience</Text>
-        </Message>
-        */}
-
-        {/* <Paper elevation={3} sx={{
-          alignItems: "center",
-          display: "block",
-          justifyContent: "center",
-          position: "absolute",
-          borderRadius: "50%",
-          bottom: 100,
-          right: 20,
-          width: 60,
-          height: 60,
-          zIndex: 999
-        }}>
-          <MarkEmailUnreadOutlined color="success" sx={{ height: 50, width: "auto", marginLeft: "5px", marginTop: 1 }} />
-        </Paper> */}
       </CardMedia>
 
       <CardActions sx={{
