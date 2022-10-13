@@ -1,6 +1,8 @@
 'use strict';
 
-const { log } = require('console');
+const {
+  log
+} = require('console');
 const cors = require('cors');
 // Express
 const express = require('express');
@@ -35,6 +37,6 @@ io.on("connect", (socket) => {
   })
 })
 
-httpServer.listen(8080, '192.168.178.34', () => {
+httpServer.listen(process.env.PORT || 8080, () => {
   console.log("geht!")
 });
